@@ -298,8 +298,8 @@ Sample prediction outputs and training curves are saved in `outputs/visualizatio
 ---
 
 ## Demo Video
+https://drive.google.com/drive/folders/1HGIn9ID62G4WV83xA0ebpPXeseOxB8j9
 
-https://drive.google.com/file/d/1cle4OAu4IUnLBE9c4qMChIb9jCA_Psu2/view?usp=sharing
 
 
 The demo covers:
