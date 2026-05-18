@@ -273,7 +273,7 @@ YOLOv8n was chosen for its speed/accuracy tradeoff on small aerial objects. At 7
 | Batch size | 4 |
 | Device | Tesla T4 GPU |
 | Optimizer | AdamW |
-| Learning rate | 0.001 → 0.00001 (cosine decay) |
+| Learning rate | 0.001 → 0.00001 |
 | Warmup epochs | 3 |
 | Confidence threshold | 0.25 |
 | IoU threshold | 0.45 |
@@ -285,11 +285,15 @@ YOLOv8n was chosen for its speed/accuracy tradeoff on small aerial objects. At 7
 The training proceeds in 5 stages each epoch:
 
 ```
-Image loaded
+For each batch of 4 images:
     ↓
-Augmented (mosaic, flip, scale, color, mixup)
+Load 4 images → apply Mosaic (stitch 4 random images into one)
     ↓
-Forward pass through 130 layers
+15% chance: apply MixUp (blend with another image)
+    ↓
+Apply remaining augmentations (flip, scale, color, translate)
+    ↓
+Forward pass through 130 layers (all 4 images simultaneously)
     ↓
 Loss calculated:
     box_loss  → how far off are the predicted box positions?
@@ -298,7 +302,10 @@ Loss calculated:
     ↓
 Backpropagation → AdamW updates 3M weights
     ↓
-After all 6,471 images: validate on 548 val images → compute mAP
+Next batch...
+    ↓
+After all 1,618 batches (one epoch complete):
+Validate on 548 val images → compute mAP
     ↓
 If best mAP so far → save as best.pt
 ```
@@ -309,7 +316,7 @@ Epochs 1–3   (warmup) : LR gradually increases  0 → 0.001
 Epochs 3–50  (decay)  : LR gradually decreases  0.001 → 0.00001
 ```
 
-The warmup prevents unstable large updates at the start. The cosine decay allows big improvements early and careful fine-tuning at the end.
+The warmup prevents unstable large updates at the start. For lower training regime (50 epochs), a cosine curve won't have enough time to breathe. Lnear decay is much safer here. 
 
 **Checkpoint saving:**
 
